@@ -3,7 +3,7 @@ from flet import *
 from flet_core.control_event import ControlEvent
 
 
-def main(page: ft.Page):
+def main(page: Page):
     page.title = "Login"
     page.vertical_alignment = MainAxisAlignment.CENTER
     page.theme_mode = ThemeMode.DARK
@@ -42,6 +42,24 @@ def main(page: ft.Page):
             page.clean()
             page.add(ft.Text("Passwords do not match!"), signup_view)
 
+    def validate_form(e: ControlEvent) -> None:
+        if all([text_username.value, text_email.value, text_password.value, text_confirm_password.value, agree_checkbox.value]):
+            submit_button.disabled = False
+        else:
+            submit_button.disabled = True
+
+        if len(text_password.value) < 8:
+            text_password.color = 'red'
+        else:
+            text_password.color = 'white'
+
+        if text_password.value != text_confirm_password.value:
+            text_confirm_password.color = 'red'
+        else:
+            text_confirm_password.color = 'white'
+            
+        page.update()
+
     # Login view
     text_username: TextField = TextField(label='Username', text_align=TextAlign.LEFT, width=200)
     text_password: TextField = TextField(label='Password', text_align=TextAlign.LEFT, width=200, password=True)
@@ -51,19 +69,19 @@ def main(page: ft.Page):
 
     signup_link = ft.TextButton(text="Don't have an account? Signup", on_click=show_signup)
     login_view = Row(
-                controls=[
-                    Column(
-                        [
-                            text_username,
-                            text_password,
-                            agree_checkbox,
-                            signup_link,
-                            submit_button
-                        ]
-                    )
-                ],
-                alignment=MainAxisAlignment.CENTER
+        controls=[
+            Column(
+                [
+                    text_username,
+                    text_password,
+                    agree_checkbox,
+                    signup_link,
+                    submit_button
+                ]
             )
+        ],
+        alignment=MainAxisAlignment.CENTER
+    )
 
     # Signup view
     text_username: TextField = TextField(label='Username', text_align=TextAlign.LEFT, width=200)
@@ -76,21 +94,27 @@ def main(page: ft.Page):
 
     login_link = ft.TextButton(text="Already have an account? Login", on_click=show_login)
     signup_view = Row(
-            controls=[
-                Column(
-                    [
-                        text_username,
-                        text_email,
-                        text_password,
-                        text_confirm_password,
-                        agree_checkbox,
-                        login_link,
-                        submit_button
-                    ]
-                )
-            ],
-            alignment=MainAxisAlignment.CENTER
-        )
+        controls=[
+            Column(
+                [
+                    text_username,
+                    text_email,
+                    text_password,
+                    text_confirm_password,
+                    agree_checkbox,
+                    login_link,
+                    submit_button
+                ]
+            )
+        ],
+        alignment=MainAxisAlignment.CENTER
+    )
+
+    agree_checkbox.on_change = validate_form
+    text_username.on_change = validate_form
+    text_email.on_change = validate_form
+    text_password.on_change = validate_form
+    text_confirm_password.on_change = validate_form
 
     # Initial view
     show_login(None)
@@ -98,4 +122,4 @@ def main(page: ft.Page):
     page.update()
 
 
-ft.app(target=main)
+ft.app(target=main, view=FLET_APP)
