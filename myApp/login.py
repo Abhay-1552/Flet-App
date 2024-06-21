@@ -1,6 +1,6 @@
 import flet as ft
-from flet import *
-from flet_core.control_event import ControlEvent
+from flet import (Page, MainAxisAlignment, ThemeMode, TextField, TextAlign, Checkbox, ElevatedButton, TextButton,
+                  Row, Column, Text)
 
 
 def main(page: Page):
@@ -11,88 +11,57 @@ def main(page: Page):
     page.window_height = 400
     page.window_resizable = False
 
-    def show_login(e: ControlEvent):
+    def show_view(view):
         page.clean()
-        page.add(login_view)
+        page.add(view)
 
-    def show_signup(e: ControlEvent):
-        page.clean()
-        page.add(signup_view)
-
-    def login(e: ControlEvent):
+    def login(e):
         email = text_email.value
         password = text_password.value
-        # Here, add your authentication logic
         if email == "test@example.com" and password == "password":
-            page.clean()
-            page.add(ft.Text("Login Successful!"))
+            show_view(Text("Login Successful!"))
         else:
-            page.clean()
-            page.add(ft.Text("Login Failed!"), login_view)
+            show_view(ft.Column([Text("Login Failed!"), login_view]))
 
-    def signup(e: ControlEvent):
+    def signup(e):
         email = text_email.value
         password = text_password.value
         confirm_password = text_confirm_password.value
-        # Here, add your registration logic
         if password == confirm_password:
-            page.clean()
-            page.add(ft.Text("Signup Successful! Please Login"), ElevatedButton(text="Login", on_click=show_login))
+            show_view(ft.Column([Text("Signup Successful! Please Login"), ElevatedButton(text="Login", on_click=lambda _: show_view(login_view))]))
         else:
-            page.clean()
-            page.add(ft.Text("Passwords do not match!"), signup_view)
+            show_view(ft.Column([Text("Passwords do not match!"), signup_view]))
 
-    def validate_form(e: ControlEvent) -> None:
-        if all([text_username.value, text_email.value, text_password.value, text_confirm_password.value, agree_checkbox.value]):
-            submit_button.disabled = False
-        else:
-            submit_button.disabled = True
+    def validate_form(e):
+        valid = all([text_username.value, text_email.value, text_password.value, text_confirm_password.value, agree_checkbox.value])
+        submit_button.disabled = not valid
 
-        if len(text_password.value) < 8:
-            text_password.color = 'red'
-        else:
-            text_password.color = 'white'
+        text_password.color = 'red' if len(text_password.value) < 8 else 'white'
+        text_confirm_password.color = 'red' if len(text_confirm_password.value) < 8 or text_password.value != text_confirm_password.value else 'white'
 
-        if text_password.value != text_confirm_password.value:
-            text_confirm_password.color = 'red'
-        else:
-            text_confirm_password.color = 'white'
-            
         page.update()
 
-    # Login view
-    text_username: TextField = TextField(label='Username', text_align=TextAlign.LEFT, width=200)
-    text_password: TextField = TextField(label='Password', text_align=TextAlign.LEFT, width=200, password=True)
+    text_username = TextField(label='Username', text_align=TextAlign.LEFT, width=200)
+    text_email = TextField(label='Email', text_align=TextAlign.LEFT, width=200)
+    text_password = TextField(label='Password', text_align=TextAlign.LEFT, width=200, password=True)
+    text_confirm_password = TextField(label='Confirm Password', text_align=TextAlign.LEFT, width=200, password=True)
+    agree_checkbox = Checkbox(label='Agree to Terms and Conditions', value=False)
+    submit_button = ElevatedButton(text='Signup', width=200, disabled=True, on_click=signup)
 
-    agree_checkbox: Checkbox = Checkbox(label='Agree to Terms and Conditions', value=False)
-    submit_button: ElevatedButton = ElevatedButton(text='Signup', width=200, disabled=True, on_click=login)
-
-    signup_link = ft.TextButton(text="Don't have an account? Signup", on_click=show_signup)
     login_view = Row(
         controls=[
             Column(
                 [
-                    text_username,
+                    TextField(label='Email', text_align=TextAlign.LEFT, width=200),
                     text_password,
-                    agree_checkbox,
-                    signup_link,
-                    submit_button
-                ]
+                    TextButton(text="Don't have an account? Signup", on_click=lambda _: show_view(signup_view)),
+                    ElevatedButton(text='Login', width=200, on_click=login)
+                ],
+                alignment=MainAxisAlignment.CENTER
             )
-        ],
-        alignment=MainAxisAlignment.CENTER
+        ]
     )
 
-    # Signup view
-    text_username: TextField = TextField(label='Username', text_align=TextAlign.LEFT, width=200)
-    text_email: TextField = TextField(label='Email', text_align=TextAlign.LEFT, width=200)
-    text_password: TextField = TextField(label='Password', text_align=TextAlign.LEFT, width=200, password=True)
-    text_confirm_password: TextField = TextField(label='Confirm Password', text_align=TextAlign.LEFT, width=200, password=True)
-
-    agree_checkbox: Checkbox = Checkbox(label='Agree to Terms and Conditions', value=False)
-    submit_button: ElevatedButton = ElevatedButton(text='Signup', width=200, disabled=True, on_click=signup)
-
-    login_link = ft.TextButton(text="Already have an account? Login", on_click=show_login)
     signup_view = Row(
         controls=[
             Column(
@@ -102,12 +71,12 @@ def main(page: Page):
                     text_password,
                     text_confirm_password,
                     agree_checkbox,
-                    login_link,
+                    TextButton(text="Already have an account? Login", on_click=lambda _: show_view(login_view)),
                     submit_button
-                ]
+                ],
+                alignment=MainAxisAlignment.CENTER
             )
-        ],
-        alignment=MainAxisAlignment.CENTER
+        ]
     )
 
     agree_checkbox.on_change = validate_form
@@ -116,10 +85,8 @@ def main(page: Page):
     text_password.on_change = validate_form
     text_confirm_password.on_change = validate_form
 
-    # Initial view
-    show_login(None)
-
+    show_view(login_view)
     page.update()
 
 
-ft.app(target=main, view=FLET_APP)
+ft.app(target=main, view=ft.FLET_APP)
