@@ -1,15 +1,15 @@
 import flet as ft
 from flet import (Page, MainAxisAlignment, ThemeMode, TextField, TextAlign, Checkbox, ElevatedButton, TextButton,
-                  Row, Column, Text)
+                  Row, Column, Text, CrossAxisAlignment)
 
 
 def main(page: Page):
     page.title = "Login"
     page.vertical_alignment = MainAxisAlignment.CENTER
+    page.horizontal_alignment = CrossAxisAlignment.CENTER
     page.theme_mode = ThemeMode.DARK
-    page.window_width = 400
-    page.window_height = 400
-    page.window_resizable = False
+    page.window_width = 360
+    page.window_height = 640
 
     def show_view(view):
         page.clean()
@@ -89,4 +89,4 @@ def main(page: Page):
     page.update()
 
 
-ft.app(target=main, view=ft.FLET_APP)
+ft.app(target=main)
